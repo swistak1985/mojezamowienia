@@ -175,7 +175,7 @@ fetch("https://raw.githubusercontent.com/swistak1985/mojezamowienia/main/produkt
             const productElement = document.createElement("div");
             productElement.classList.add("product");
             productElement.innerHTML = `
-                <img src="${product['img_url']}" alt="Zdjęcie produktu">
+                <img src="${product['img_url'] || 'https://via.placeholder.com/100'}" alt="Zdjęcie produktu" onerror="this.src='https://via.placeholder.com/100'">
                 <div class="product-details">
                     <div class="product-code">Indeks: ${product['Index']}</div>
                     <div class="product-name">${product['Nazwa Produktu']}</div>
