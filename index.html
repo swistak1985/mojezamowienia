@@ -3,286 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edytor Oferty z Importem CSV</title>
+    <title>Zamówienie produktów</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        input[type="text"] { width: 100%; }
-        .red-text { color: red; font-size: 1.2em; font-weight: bold; }
-        #banner-preview { max-width: 300px; margin: 10px auto; display: block; }
-        .product-image-preview { max-width: 100px; }
+        /* Stylizacja strony */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .banner-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .banner-container img {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+        }
+        .product-list {
+            margin-top: 20px;
+            width: 100%;
+        }
+        .product {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        @media(min-width: 600px) {
+            .product {
+                flex-direction: row;
+            }
+        }
+        .product:nth-child(even) {
+            background-color: #f8f8f8;
+        }
+        .product img {
+            max-width: 80px;
+            margin-right: 15px;
+            width: 100%;
+            height: auto;
+        }
+        .product-details {
+            flex-grow: 1;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .product-code {
+            font-size: 14px;
+            font-weight: bold;
+            color: #444;
+            margin-bottom: 5px;
+        }
+        .product-name {
+            font-size: 16px;
+            color: #333;
+            font-weight: bold;
+        }
+        .pack-info {
+            font-size: 14px;
+            color: #666;
+            margin-right: 10px;
+        }
+        .price {
+            font-size: 16px;
+            font-weight: bold;
+            color: #000;
+            margin-right: 20px;
+        }
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .quantity-controls button {
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            text-align: center;
+            line-height: 1;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-right: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .quantity-controls button:hover {
+            background-color: #218838;
+        }
+        .quantity-controls input {
+            width: 50px;
+            text-align: center;
+            margin-right: 5px;
+            padding: 5px;
+            border: 1px solid #bbb;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        label {
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #444;
+        }
+        input, button {
+            padding: 12px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            border: 1px solid #bbb;
+            border-radius: 5px;
+        }
+        input {
+            width: 100%;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #005bb5;
+        }
+        .total-box {
+            text-align: right;
+            font-weight: bold;
+            margin-top: 20px;
+            font-size: 18px;
+        }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/bwip-js@2.0.9/dist/bwip-js.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
-<h1>Edytor Oferty z Importem CSV</h1>
+<div class="banner-container">
+    <img src="https://i.postimg.cc/SNYKPTtw/Tekst-akapitu.jpg" alt="Banner">
+</div>
 
-<label for="bannerInput">Wybierz baner na górę strony: </label>
-<input type="file" id="bannerInput" accept="image/*">
-<img id="banner-preview" src="" alt="Podgląd baneru">
-<br>
+<!-- Lista produktów -->
+<div id="product-list" class="product-list"></div>
 
-<label for="expiryDate">Oferta ważna do: </label>
-<input type="text" id="expiryDate" placeholder="Wpisz datę (np. 31.12.2024)">
-<br><br>
+<!-- Formularz z danymi -->
+<form id="order-form">
+    <label>
+        Twój e-mail:
+        <input type="email" id="email" name="email" placeholder="Wprowadź swój e-mail" required>
+    </label>
+    <label>
+        Nazwa sklepu:
+        <input type="text" id="store-name" name="store-name" placeholder="Wprowadź nazwę sklepu" required>
+    </label>
+    <button type="button" onclick="submitOrder()">Wyślij zamówienie</button>
+</form>
 
-<input type="text" id="searchInput" placeholder="Szukaj produktu:" style="width: 100%; font-size: 16px; padding: 8px;">
-<br><br>
-
-<!-- Opcja ładowania wielu zdjęć naraz -->
-<label for="imageFilesInput">Wybierz zdjęcia produktów (w nazwach plików użyj indeksów produktów): </label>
-<input type="file" id="imageFilesInput" accept="image/*" multiple>
-<br><br>
-
-<input type="file" id="fileInput" accept=".csv">
-<table>
-    <thead>
-        <tr>
-            <th>Wybierz</th>
-            <th>Index</th>
-            <th>Nazwa Produktu</th>
-            <th>Cena Netto</th>
-            <th>EAN</th>
-            <th>Kod Kreskowy</th>
-            <th>Zdjęcie</th>
-        </tr>
-    </thead>
-    <tbody id="product-list">
-        <!-- Wiersze zostaną dodane przez JavaScript -->
-    </tbody>
-</table>
-
-<button onclick="generatePDF()">Zapisz do PDF</button>
+<div id="total-value" class="total-box">Łączna wartość zamówienia: 0 GBP</div>
 
 <script>
-    let bannerDataURL = '';
+let productsData = [];
 
-    document.getElementById('bannerInput').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            bannerDataURL = e.target.result;
-            document.getElementById('banner-preview').src = bannerDataURL;
-        };
-        reader.readAsDataURL(file);
-    });
-
-    document.getElementById('fileInput').addEventListener('change', loadCSV);
-
-    // Funkcja do wczytania CSV
-    function loadCSV(event) {
-        const file = event.target.files[0];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const csv = e.target.result;
-            const separator = csv.includes(';') ? ';' : ',';
-            const rows = csv.split('\n');
-            rows.forEach((row, index) => {
-                if (index === 0) return;
-                const cols = row.split(separator);
-                if (cols.length >= 4) {
-                    const product = {
-                        index: cols[0].trim(),
-                        name: cols[1].trim(),
-                        netto: cols[2].trim(),
-                        ean: cols[3].trim(),
-                        imageDataURL: ''
-                    };
-                    addProductToTable(product);
-                }
-            });
-        };
-        reader.onerror = function() {
-            console.error("Błąd wczytywania pliku CSV");
-            alert("Wystąpił błąd podczas wczytywania pliku CSV.");
-        };
-        reader.readAsText(file);
-    }
-
-    function addProductToTable(product) {
-        const tbody = document.getElementById("product-list");
-        const row = document.createElement("tr");
-
-        const checkboxCell = document.createElement("td");
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.className = "product-checkbox";
-        checkboxCell.appendChild(checkbox);
-        row.appendChild(checkboxCell);
-
-        const indexCell = document.createElement("td");
-        indexCell.innerText = product.index;
-        row.appendChild(indexCell);
-
-        const nameCell = document.createElement("td");
-        nameCell.innerText = product.name;
-        row.appendChild(nameCell);
-
-        const nettoCell = document.createElement("td");
-        const nettoInput = document.createElement("input");
-        nettoInput.type = "text";
-        nettoInput.value = product.netto;
-        nettoInput.classList.add("red-text");
-        nettoCell.appendChild(nettoInput);
-        row.appendChild(nettoCell);
-
-        const eanCell = document.createElement("td");
-        eanCell.innerText = product.ean;
-        row.appendChild(eanCell);
-
-        const barcodeCell = document.createElement("td");
-        const barcodeCanvas = document.createElement("canvas");
-        barcodeCanvas.id = `barcode-${product.ean}`;
-        barcodeCell.appendChild(barcodeCanvas);
-        row.appendChild(barcodeCell);
-
-        try {
-            bwipjs.toCanvas(barcodeCanvas, {
-                bcid: 'ean13',
-                text: product.ean,
-                scale: 2,
-                height: 10,
-                includetext: false,
-                textxalign: 'center',
-            });
-        } catch (error) {
-            console.error("Błąd generowania kodu kreskowego dla EAN:", product.ean, error);
-        }
-
-        const imageCell = document.createElement("td");
-        const imgPreview = document.createElement("img");
-        imgPreview.className = "product-image-preview";
-        imageCell.appendChild(imgPreview);
-        product.imageElement = imgPreview;
-        row.appendChild(imageCell);
-
-        tbody.appendChild(row);
-    }
-
-    // Wczytywanie obrazów na podstawie indeksów produktów
-    document.getElementById("imageFilesInput").addEventListener("change", function(event) {
-        const files = event.target.files;
-        Array.from(files).forEach(file => {
-            const indexFromFileName = file.name.match(/\d+/);
-            if (indexFromFileName) {
-                const index = indexFromFileName[0];
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const rows = document.getElementById("product-list").getElementsByTagName("tr");
-                    for (let row of rows) {
-                        if (row.cells[1].innerText === index) {
-                            row.cells[6].querySelector("img").src = e.target.result;
-                            break;
-                        }
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
+// Funkcja do pobierania danych z JSON i wyświetlania produktów
+fetch("https://raw.githubusercontent.com/swistak1985/mojezamowienia/main/produkty.json")
+    .then(response => response.json())
+    .then(data => {
+        productsData = data;
+        const productList = document.getElementById("product-list");
+        data.forEach((product, index) => {
+            const productElement = document.createElement("div");
+            productElement.classList.add("product");
+            productElement.innerHTML = `
+                <img src="${product['img_url']}" alt="Zdjęcie produktu">
+                <div class="product-details">
+                    <div class="product-code">Indeks: ${product['Index']}</div>
+                    <div class="product-name">${product['Nazwa Produktu']}</div>
+                    <div class="pack-info">Opakowanie: ${product['Opakowanie']}</div>
+                    <div class="price">${product['Cena Netto']} GBP</div>
+                </div>
+                <div class="quantity-controls">
+                    <button onclick="changeQuantity(${index}, -1)">-</button>
+                    <input type="number" id="quantity-${index}" value="0" readonly>
+                    <button onclick="changeQuantity(${index}, 1)">+</button>
+                </div>
+            `;
+            productList.appendChild(productElement);
         });
-    });
+    })
+    .catch(error => console.error("Błąd wczytywania danych:", error));
 
-    document.getElementById("searchInput").addEventListener("input", function() {
-        const filter = this.value.toLowerCase();
-        const rows = document.getElementById("product-list").getElementsByTagName("tr");
-        for (let i = 0; i < rows.length; i++) {
-            const nameCell = rows[i].cells[2];
-            const name = nameCell ? nameCell.textContent.toLowerCase() : "";
-            rows[i].style.display = name.includes(filter) ? "" : "none";
-        }
-    });
-
-    function generatePDF() {
-        const selectedProducts = Array.from(document.querySelectorAll('.product-checkbox'))
-            .map((checkbox, index) => {
-                if (checkbox.checked) {
-                    const row = checkbox.closest("tr");
-                    return {
-                        index: row.cells[1].innerText,
-                        name: row.cells[2].innerText,
-                        netto: row.cells[3].querySelector("input").value,
-                        ean: row.cells[4].innerText,
-                        barcode: row.cells[5].querySelector("canvas"),
-                        image: row.cells[6].querySelector("img")?.src || ""
-                    };
-                }
-                return null;
-            })
-            .filter(product => product !== null);
-
-        const pdfContent = document.createElement("div");
-
-        if (bannerDataURL) {
-            const banner = document.createElement("img");
-            banner.src = bannerDataURL;
-            banner.style.maxWidth = "300px";
-            banner.style.display = "block";
-            banner.style.margin = "0 auto 20px";
-            pdfContent.appendChild(banner);
-        }
-
-        const expiryDate = document.getElementById("expiryDate").value;
-        if (expiryDate) {
-            const expiryDateElement = document.createElement("p");
-            expiryDateElement.innerText = `Oferta ważna do: ${expiryDate}`;
-            pdfContent.appendChild(expiryDateElement);
-        }
-
-        selectedProducts.forEach(product => {
-            const productRow = document.createElement("div");
-            productRow.style.display = "flex";
-            productRow.style.alignItems = "center";
-            productRow.style.marginBottom = "20px";
-
-            const textContent = document.createElement("div");
-            textContent.style.flex = "1";
-
-            const index = document.createElement("p");
-            index.innerText = `Index: ${product.index}`;
-            textContent.appendChild(index);
-
-            const name = document.createElement("p");
-            name.innerText = `Nazwa: ${product.name}`;
-            textContent.appendChild(name);
-
-            const netto = document.createElement("p");
-            netto.innerHTML = `Cena Netto: <span class="red-text">${product.netto}</span>`;
-            textContent.appendChild(netto);
-
-            const ean = document.createElement("p");
-            ean.innerText = `EAN: ${product.ean}`;
-            textContent.appendChild(ean);
-
-            const barcode = document.createElement("img");
-            barcode.src = product.barcode.toDataURL();
-            barcode.style.marginBottom = "10px";
-            textContent.appendChild(barcode);
-
-            productRow.appendChild(textContent);
-
-            if (product.image) {
-                const img = document.createElement("img");
-                img.src = product.image;
-                img.style.maxWidth = "150px";
-                img.style.marginLeft = "10px";
-                productRow.appendChild(img);
-            }
-
-            pdfContent.appendChild(productRow);
-        });
-
-        const opt = {
-            margin:       0.5,
-            filename:     'Oferta.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-        };
-        html2pdf().from(pdfContent).set(opt).save();
+// Zmiana ilości
+function changeQuantity(index, change) {
+    const input = document.getElementById(`quantity-${index}`);
+    let currentQuantity = parseInt(input.value);
+    if (currentQuantity + change >= 0) {
+        currentQuantity += change;
+        input.value = currentQuantity;
+        productsData[index].quantity = currentQuantity;
+        calculateTotal();
     }
+}
+
+// Obliczanie łącznej wartości zamówienia
+function calculateTotal() {
+    let totalValue = 0;
+    productsData.forEach(product => {
+        if (product.quantity > 0) {
+            totalValue += product['Cena Netto'] * product['Opakowanie'] * product.quantity;
+        }
+    });
+    document.getElementById("total-value").innerText = `Łączna wartość zamówienia: ${totalValue.toFixed(2)} GBP`;
+}
+
+// Funkcja wysyłania zamówienia
+function submitOrder() {
+    const storeName = document.getElementById('store-name').value;
+    const email = document.getElementById('email').value;
+
+    if (!email || !storeName) {
+        alert("Proszę uzupełnić wszystkie pola.");
+        return;
+    }
+
+    let orderMessage = `Zamówienie dla sklepu: ${storeName}\n\n`;
+    orderMessage += "Indeks\tNazwa\tIlość\n";
+    productsData.forEach(product => {
+        if (product.quantity > 0) {
+            orderMessage += `${product.Index}\t${product['Nazwa Produktu']}\t${product.quantity}\n`;
+        }
+    });
+
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("store-name", storeName);
+    formData.append("message", orderMessage);
+
+    fetch("https://formspree.io/f/mgveyybb", {
+        method: "POST",
+        body: formData,
+        headers: {
+            'Accept': 'application/json'
+        }
+    }).then(response => {
+        if (response.ok) {
+            alert("Zamówienie zostało wysłane!");
+        } else {
+            alert("Błąd przy wysyłaniu zamówienia.");
+        }
+    }).catch(error => {
+        console.error("Błąd:", error);
+        alert("Błąd przy wysyłaniu zamówienia.");
+    });
+}
 </script>
 
 </body>
